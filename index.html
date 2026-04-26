@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DM Calzado | Elite Boutique</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --dark: #121212;
+            --gold: #b59410;
+            --soft-gray: #f8f8f8;
+            --transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: white;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .brand-logo { font-family: 'Playfair Display', serif; }
+
+        /* --- NAVBAR RESPONSIVE --- */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #eee;
+            min-height: 80px;
+            z-index: 1050; /* Prioridad alta */
+        }
+
+        .brand-logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; color: var(--dark); text-decoration: none; }
+
+        .nav-link {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #888 !important;
+            cursor: pointer;
+        }
+
+        .nav-link.active { color: var(--dark) !important; font-weight: 600; border-bottom: 2px solid var(--dark); }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        #main-viewport {
+            padding-top: 0;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        /* --- CARRUSEL --- */
+        .carousel-item {
+            height: 55vh;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .carousel-overlay {
+            background: rgba(0,0,0,0.3);
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+
+        /* --- PRODUCTOS --- */
+        .page-section { display: none; padding: 40px 0; }
+        .page-section.active { display: block; animation: fadeIn 0.6s; }
+
+        .product-card { border: none; margin-bottom: 30px; }
+        .img-wrapper {
+            background: var(--soft-gray);
+            padding: 20px;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .product-card img { width: 100%; transition: var(--transition); mix-blend-mode: multiply; }
+        .product-card:hover img { transform: scale(1.1); }
+
+        .btn-elite {
+            background: var(--dark);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+
+        /* --- CARRITO (CIERRE AUTOMÁTICO) --- */
+        #cart-sidebar {
+            position: fixed;
+            right: -100%; top: 0;
+            width: 400px; height: 100%;
+            background: white;
+            z-index: 2000;
+            transition: var(--transition);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+        }
+        #cart-sidebar.open { right: 0; }
+
+        @media (max-width: 576px) { #cart-sidebar { width: 100%; } }
+
+        #body-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1500;
+            backdrop-filter: blur(4px);
+        }
+
+        /* --- WHATSAPP --- */
+        .btn-whatsapp {
+            position: fixed;
+            bottom: 25px; right: 25px;
+            background: #25d366;
+            color: white;
+            width: 55px; height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center; justify-content: center;
+            font-size: 28px;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div id="body-overlay" onclick="toggleCart()"></div>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="brand-logo" onclick="navegar('inicio')">DM CALZADO</a>
+            
+            <div class="d-flex align-items-center gap-3 order-lg-last">
+                <i class="fa-solid fa-magnifying-glass fs-5" style="cursor:pointer" onclick="toggleSearch()"></i>
+                <div class="position-relative" onclick="toggleCart()" style="cursor:pointer">
+                    <i class="fa-solid fa-bag-shopping fs-4"></i>
+                    <span id="cart-badge" class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle" style="font-size:0.6rem">0</span>
+                </div>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+
+            <div class="collapse navbar-collapse justify-content-center" id="menu">
+                <ul class="navbar-nav gap-lg-4 mt-3 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link active" onclick="navegar('inicio', this)">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="navegar('productos', this)">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" onclick="navegar('nosotros', this)">Nosotros</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="search-bar" class="bg-light p-3 border-bottom" style="display:none;">
+        <div class="container">
+            <input type="text" id="searchInput" class="form-control border-0 fs-4 text-center" placeholder="¿Qué buscas hoy?" onkeyup="buscar()">
+        </div>
+    </div>
+
+    <a href="https://wa.me/51987654321" class="btn-whatsapp" target="_blank">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <main id="main-viewport">
+        
+        <section id="inicio" class="page-section active">
+            <div id="hero" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active" style="background-image: url('https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1600');">
+                        <div class="carousel-overlay">
+                            <div class="animate__animated animate__fadeInUp">
+                                <h1 class="display-3 fw-bold">DM CALZADO</h1>
+                                <p class="text-uppercase letter-spacing-5">Elegancia en cada paso 👠</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item" style="background-image: url('https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=1600');">
+                        <div class="carousel-overlay">
+                            <div>
+                                <h1 class="display-3 fw-bold">Cuero Vacuno</h1>
+                                <p class="text-uppercase letter-spacing-5">Calidad 100% Peruana</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container py-5 text-center">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <h6 class="fw-bold">EXPERIENCIA</h6>
+                        <p class="small text-muted">Más de 15 años en el mercado peruano.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold">CALIDAD</h6>
+                        <p class="small text-muted">Cuero vacuno de alta durabilidad y elegancia.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6 class="fw-bold">ARTE</h6>
+                        <p class="small text-muted">Personal altamente calificado en cada etapa.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="productos" class="page-section">
+            <div class="container py-4">
+                <h2 class="text-center mb-5">Nuestra Colección</h2>
+                <div class="row g-4" id="grid">
+                    </div>
+            </div>
+        </section>
+
+        <section id="nosotros" class="page-section">
+            <div class="container py-5">
+                <div class="row align-items-center g-5">
+                    <div class="col-md-6">
+                        <img src="https://images.unsplash.com/photo-1449244445465-943059fcbd93?q=80&w=1000" class="img-fluid rounded shadow" alt="Nosotros">
+                    </div>
+                    <div class="col-md-6">
+                        <h2 class="mb-4">Nuestra Historia</h2>
+                        <p>Somos una empresa peruana dedicada al rubro del calzado de dama con una trayectoria de más de 15 años.</p>
+                        <p>Nos especializamos en calzado de cuero vacuno de alta calidad, garantizando productos elegantes y cómodos.</p>
+                        <p class="text-muted">Nuestro proceso incluye diseño, desarrollo de modelos, armado y control de calidad riguroso.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="cart-sidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold m-0">MI BOLSA</h4>
+            <i class="fa-solid fa-xmark fs-4" onclick="toggleCart()" style="cursor:pointer"></i>
+        </div>
+        <div id="cart-list" class="flex-grow-1 overflow-auto"></div>
+        <div class="border-top pt-4">
+            <div class="d-flex justify-content-between fs-4 fw-bold mb-4">
+                <span>TOTAL</span>
+                <span id="total-val">S/ 0.00</span>
+            </div>
+            <button class="btn-elite py-3" onclick="alert('Pedido enviado!')">COMPRAR POR WHATSAPP</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const db = [
+            { id: 1, name: 'Stiletto Royale', price: 220, img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2' },
+            { id: 2, name: 'Oxford Mahogany', price: 195, img: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4' },
+            { id: 3, name: 'Urban Comfort', price: 165, img: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86' },
+            { id: 4, name: 'Summer Sandal', price: 130, img: 'https://images.unsplash.com/photo-1596702994230-a8839505ff91' }
+        ];
+
+        let cart = [];
+
+        function navegar(id, el) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if(el) {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                el.classList.add('active');
+            }
+            // Cierre automático del menú en móviles al navegar
+            const menu = document.getElementById('menu');
+            if(menu.classList.contains('show')) new bootstrap.Collapse(menu).hide();
+            if(id === 'productos') render(db);
+        }
+
+        function render(items) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = items.map(p => `
+                <div class="col-md-3 col-6 animate__animated animate__fadeIn">
+                    <div class="product-card">
+                        <div class="img-wrapper">
+                            <img src="${p.img}?q=80&w=500" alt="${p.name}">
+                        </div>
+                        <div class="text-center p-2">
+                            <p class="small fw-bold mb-1 text-uppercase">${p.name}</p>
+                            <p class="text-muted small">S/ ${p.price}.00</p>
+                            <button class="btn-elite" onclick="add(${p.id})">Añadir</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleCart() {
+            const side = document.getElementById('cart-sidebar');
+            const over = document.getElementById('body-overlay');
+            side.classList.toggle('open');
+            over.style.display = side.classList.contains('open') ? 'block' : 'none';
+        }
+
+        function toggleSearch() {
+            const bar = document.getElementById('search-bar');
+            bar.style.display = bar.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function buscar() {
+            const v = document.getElementById('searchInput').value.toLowerCase();
+            render(db.filter(p => p.name.toLowerCase().includes(v)));
+        }
+
+        function add(id) {
+            const p = db.find(i => i.id === id);
+            const exists = cart.find(c => c.id === id);
+            if(exists) exists.qty++; else cart.push({...p, qty: 1});
+            update();
+            Swal.fire({ toast: true, position: 'bottom-end', title: 'Añadido', icon: 'success', showConfirmButton: false, timer: 1000 });
+        }
+
+        function update() {
+            const list = document.getElementById('cart-list');
+            let total = 0, count = 0;
+            list.innerHTML = cart.map((item, i) => {
+                total += (item.price * item.qty); count += item.qty;
+                return `
+                <div class="d-flex align-items-center mb-3">
+                    <img src="${item.img}" style="width:50px; height:50px; object-fit:cover" class="me-3 rounded">
+                    <div class="flex-grow-1">
+                        <p class="m-0 small fw-bold">${item.name}</p>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <button class="btn btn-sm border py-0" onclick="changeQty(${i},-1)">-</button>
+                            <span class="small">${item.qty}</span>
+                            <button class="btn btn-sm border py-0" onclick="changeQty(${i},1)">+</button>
+                        </div>
+                    </div>
+                    <span class="small fw-bold">S/ ${item.price * item.qty}</span>
+                </div>`;
+            }).join('');
+            document.getElementById('total-val').innerText = `S/ ${total}.00`;
+            document.getElementById('cart-badge').innerText = count;
+        }
+
+        function changeQty(i, d) {
+            cart[i].qty += d;
+            if(cart[i].qty < 1) cart.splice(i, 1);
+            update();
+        }
+
+        render(db);
+    </script>
+</body>
+</html>
